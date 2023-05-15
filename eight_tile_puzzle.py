@@ -33,6 +33,15 @@ def heuristic_misplaced_tile(root: Node):
                 misplaced_count += 1
     return misplaced_count
 
+def heuristic_manhattan_distance(root: Node):
+    total_distance = 0
+    for i in range(len(root.problem)):
+        for j in range(len(root.problem[i])):
+            x, y = is_possible(goal_state, root.problem[i][j])
+            if root.problem[i][j] != 0:
+                total_distance += abs(x - i) + abs(y - j)
+    return total_distance
+
 def queueing_function(node, nodes, algorithm):
     global visited_states # to keep track of the visited states 
     a=copy.deepcopy(node)
@@ -46,6 +55,9 @@ def queueing_function(node, nodes, algorithm):
         elif algorithm == '2':
             # print("in misplaced")
             a.cost = a.depth + heuristic_misplaced_tile(a)
+        elif algorithm == '3':
+            # print("in manhattan")
+            a.cost = a.depth + heuristic_manhattan_distance(a)
     
     def enqueue_node(a):
         if [a.cost, a.problem] not in visited_states:
@@ -54,22 +66,22 @@ def queueing_function(node, nodes, algorithm):
             visited_states.append([a.cost, a.problem])
             # print(visited_states)
 
-    a = Movement.go_up(copy.deepcopy(node))
+    a = Operators.go_up(copy.deepcopy(node))
     if a is not None:
         update_node_cost(a, algorithm)
         enqueue_node(a)
 
-    a = Movement.go_down(copy.deepcopy(node))
+    a = Operators.go_down(copy.deepcopy(node))
     if a is not None:
         update_node_cost(a, algorithm)
         enqueue_node(a)
 
-    a = Movement.go_left(copy.deepcopy(node))
+    a = Operators.go_left(copy.deepcopy(node))
     if a is not None:
         update_node_cost(a, algorithm)
         enqueue_node(a)
 
-    a = Movement.go_right(copy.deepcopy(node))
+    a = Operators.go_right(copy.deepcopy(node))
     if a is not None:
         update_node_cost(a, algorithm)
         enqueue_node(a)
@@ -79,7 +91,7 @@ def queueing_function(node, nodes, algorithm):
     display_state(nodes[0])
     return nodes
 
-class Movement():
+class Operators():
     def go_up(root: Node):
         i, j = is_possible(root.problem, 0)
         if i != 2:
@@ -161,7 +173,7 @@ def menu():
             problem.append(row)
 
     print('\n*********\n')
-    method = input('Select one of the search methods:\n1. Uniform Cost Search\n2. A* with the misplaced tile heuristic\nEnter the search number: ')
+    method = input('Select one of the search methods:\n1. Uniform Cost Search\n2. A* with the misplaced tile heuristic\n3. A* with the Manhattan Distance heuristic\nEnter the search number: ')
     root = Node(problem, 0, 0)
     start = time.time()
     answer = generic_search(root, method)
