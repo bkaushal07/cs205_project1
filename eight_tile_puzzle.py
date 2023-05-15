@@ -25,6 +25,13 @@ def generic_search(root: Node, algorithm):
     print('NADA!!')
     return None
 
+def heuristic_misplaced_tile(root: Node):
+    misplaced_count = 0
+    for i in range(len(root.problem)):
+        for j in range(len(root.problem[i])):
+            if goal_state[i][j] != root.problem[i][j] and all(v != len(root.problem[i]) for v in (i, j)):
+                misplaced_count += 1
+    return misplaced_count
 
 def queueing_function(node, nodes, algorithm):
     global visited_states # to keep track of the visited states 
@@ -36,6 +43,9 @@ def queueing_function(node, nodes, algorithm):
         if algorithm == '1':
             # print("here")
             a.cost = a.depth
+        elif algorithm == '2':
+            # print("in misplaced")
+            a.cost = a.depth + heuristic_misplaced_tile(a)
     
     def enqueue_node(a):
         if [a.cost, a.problem] not in visited_states:
@@ -144,14 +154,14 @@ def menu():
             print()
 
     elif option == 2:
-        print('Enter your input for 8-tile puzzle:\n(Use 0 for blank space)')
+        print('Enter your input for 8-tile puzzle:\n(Use 0 for blank tile)')
         problem = []
         for _ in range(3):
             row = list(map(int, input().split()))
             problem.append(row)
 
     print('\n*********\n')
-    method = input('Select one of the search methods:\n1. Uniform Cost Search\nInput: ')
+    method = input('Select one of the search methods:\n1. Uniform Cost Search\n2. A* with the misplaced tile heuristic\nEnter the search number: ')
     root = Node(problem, 0, 0)
     start = time.time()
     answer = generic_search(root, method)
