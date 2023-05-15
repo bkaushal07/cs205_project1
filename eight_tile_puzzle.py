@@ -49,7 +49,7 @@ def heuristic_manhattan_distance(root: Node):
             x, y = is_possible(goal_state, root.problem[i][j])
             if root.problem[i][j] != 0:
                 total_distance += abs(x - i) + abs(y - j)
-    return total_distance # The total Manhattan distance
+    return total_distance # Return the total Manhattan distance
 
 
 def queueing_function(node, nodes, algorithm):
@@ -60,7 +60,6 @@ def queueing_function(node, nodes, algorithm):
     def update_node_cost(a, algorithm):
         a.depth = node.depth + 1
         if algorithm == '1':
-            # print("here")
             a.cost = a.depth
         elif algorithm == '2':
             a.cost = a.depth + heuristic_misplaced_tile(a)
@@ -71,10 +70,8 @@ def queueing_function(node, nodes, algorithm):
     def enqueue_node(a):
         if [a.cost, a.problem] not in visited_states:
             nodes.append(a)
-            # print(nodes)
             visited_states.append([a.cost, a.problem])
-            # print(visited_states)
-    
+
     
     # Generate successor nodes by applying the up, down, left, and right operators 
     # to the current node node.
