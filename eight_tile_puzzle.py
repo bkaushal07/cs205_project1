@@ -19,8 +19,6 @@ def generic_search(root: Node, algorithm):
     expanded_nodes = 0 # count of nodes that have been expanded or visited
     while nodes:
         node = nodes.pop(0) # popping the first element in the list
-        # print(node)
-        # print(node.problem)
         if node.problem == goal_state: # check if at goal state
             print(f'Hooray!!! We did it in {expanded_nodes} steps')
             return node
@@ -56,8 +54,7 @@ def heuristic_manhattan_distance(root: Node):
 
 def queueing_function(node, nodes, algorithm):
     global visited_states # to keep track of the visited states 
-    a = copy.deepcopy(node)
-    # print(a)
+    a = copy.deepcopy(node) # making a copy of the problem
 
     # Update the depth and cost of the node a based on the selected algorithm
     def update_node_cost(a, algorithm):
@@ -66,10 +63,8 @@ def queueing_function(node, nodes, algorithm):
             # print("here")
             a.cost = a.depth
         elif algorithm == '2':
-            # print("in misplaced")
             a.cost = a.depth + heuristic_misplaced_tile(a)
         elif algorithm == '3':
-            # print("in manhattan")
             a.cost = a.depth + heuristic_manhattan_distance(a)
     
     # Enqueue the node a into the list of nodes if it has not been visited before
@@ -189,31 +184,45 @@ def menu():
     option = int(input("Choose an option:\n1. Use Default Puzzle\n2. Enter your own 8-tile Puzzle\nEnter the option: "))
     if option == 1:
         sl_no = input('Enter any puzzle number between 1 and 8 (1 easiest and 8 hardest): ')
-        problem = test_cases[sl_no]
-        print('You selected this puzzle:')
-        for row in problem:
-            for number in row:
-                if number == 0:
-                    print('*', end=' ')
-                else:
-                    print(number, end=' ')
-            print()
+        if sl_no < '1' or sl_no > '8':
+            print("\n***Enter a valid puzzle number***\n")
+            print("Run the program again!\n")
+            exit()
+        else:
+            problem = test_cases[sl_no]
+            print('You selected this puzzle:')
+            for row in problem:
+                for number in row:
+                    if number == 0:
+                        print('*', end=' ')
+                    else:
+                        print(number, end=' ')
+                print()
 
     elif option == 2:
         print('Enter your input for 8-tile puzzle:\n(Use 0 for blank tile)')
         problem = []
-        for _ in range(3):
+        for _ in range(3): # this is for 3x3 puzzle (8 tile), change from 3 to 4 or 5 for a 15 or 25 tile puzzle respectively
             row = list(map(int, input().split()))
             problem.append(row)
+    
+    else:
+        print("\n***Invalid input***\n")
+        print("Run the program again!\n")
+        exit()
 
     print('\n*********\n')
-    method = input('Select one of the search methods:\n1. Uniform Cost Search\n2. A* with the misplaced tile heuristic\n3. A* with the Manhattan Distance heuristic\nEnter the search number: ')
+    method = input('Select one of the search methods:\n1. Uniform Cost Search\n2. A* with the misplaced tile heuristic\n3. A* with the Manhattan Distance heuristic\nEnter the search algorithm number: ')
     root = Node(problem, 0, 0)
-    start = time.time()
-    answer = generic_search(root, method)
-    end = time.time()
-    print('Solved with a depth of ', str(answer.depth))
-    print('Algorithm took', str(round((end - start), 3)), 'seconds to complete')
+    if '1' <= method <= '3':
+        start = time.time()
+        answer = generic_search(root, method)
+        end = time.time()
+        print('Solved with a depth of ', str(answer.depth))
+        print('Algorithm took', str(round((end - start), 3)), 'seconds to complete')
+    else:
+        print("\n***Oops!! Invalid algorithm chosen!!***\n")
+        print("Run the program again!\n")
 
 visited_states = []
 menu()
