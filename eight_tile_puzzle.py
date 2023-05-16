@@ -20,7 +20,7 @@ def generic_search(root: Node, algorithm):
     while nodes:
         node = nodes.pop(0) # popping the first element in the list
         if node.problem == goal_state: # check if at goal state
-            print(f'Hooray!!! We did it in {expanded_nodes} steps')
+            print(f'Hooray!!! We solved it!! \nExpanded {expanded_nodes} nodes')
             return node
         nodes = queueing_function(node, nodes, algorithm) # nodes is updated with the newly generated nodes as per chosen search algorithm
         expanded_nodes+=1
@@ -35,10 +35,10 @@ def heuristic_misplaced_tile(root: Node):
     misplaced_count = 0
     for i in range(len(root.problem)):
         for j in range(len(root.problem[i])):
-            if goal_state[i][j] != root.problem[i][j] and all(v != len(root.problem[i]) for v in (i, j)):
-                # Count the number of misplaced tiles in the root problem compared to the goal state
+            # Check if the tile at position (i, j) is misplaced
+            if goal_state[i][j] != root.problem[i][j] and not (i == len(root.problem[i]) - 1 and j == len(root.problem) - 1):
                 misplaced_count += 1
-    return misplaced_count # return the count of misplaced tiles
+    return misplaced_count
 
 
 # Calculates the Manhattan distance heuristic for the given puzzle state compared to the goal state.
@@ -46,10 +46,16 @@ def heuristic_manhattan_distance(root: Node):
     total_distance = 0
     for i in range(len(root.problem)):
         for j in range(len(root.problem[i])):
-            x, y = is_possible(goal_state, root.problem[i][j])
             if root.problem[i][j] != 0:
+                # Find the target position (x, y) of the tile in the goal state
+                for x in range(len(goal_state)):
+                    if root.problem[i][j] in goal_state[x]:
+                        y = goal_state[x].index(root.problem[i][j])
+                        break
+                # Calculate the Manhattan distance between the current position (i, j) and the target position (x, y)
                 total_distance += abs(x - i) + abs(y - j)
-    return total_distance # Return the total Manhattan distance
+    return total_distance
+
 
 
 def queueing_function(node, nodes, algorithm):
@@ -99,7 +105,7 @@ def queueing_function(node, nodes, algorithm):
         enqueue_node(a)
 
     nodes.sort(key = lambda a:(a.cost,a.depth)) # Sort the list of nodes based on their cost and depth
-    print ('\n***Searching at depth', str(nodes[0].depth),'\n') # Depth of the node with the lowest cost
+    print ('\n***Expanding at depth', str(nodes[0].depth),'\n') # Depth of the node with the lowest cost
     display_state(nodes[0])
     return nodes
 
@@ -111,28 +117,29 @@ def queueing_function(node, nodes, algorithm):
 # that the move is not possible in that direction.
 
 class Operators():
+    def swap_elements(problem, i1, j1, i2, j2):
+        problem[i1][j1], problem[i2][j2] = problem[i2][j2], problem[i1][j1]
+
     def go_up(root: Node):
         i, j = is_possible(root.problem, 0)
-        # checks if the value of i is not equal to 2, which means the blank space is not in the bottom row of the puzzle. 
         if i != 2:
-            root.problem[i][j], root.problem[i+1][j] = root.problem[i+1][j], root.problem[i][j]
+            Operators.swap_elements(root.problem, i, j, i+1, j)
             return root
         else:
             return None
-        
+
     def go_down(root: Node):
         i, j = is_possible(root.problem, 0)
         if i != 0:
-            root.problem[i][j], root.problem[i-1][j] = root.problem[i-1][j], root.problem[i][j]
+            Operators.swap_elements(root.problem, i, j, i-1, j)
             return root
         else:
             return None
 
     def go_left(root: Node):
         i, j = is_possible(root.problem, 0)
-        # checks if the value of j is not equal to 2, which means the blank space is not in the rightmost column of the puzzle.
         if j != 2:
-            root.problem[i][j], root.problem[i][j+1] = root.problem[i][j+1], root.problem[i][j]
+            Operators.swap_elements(root.problem, i, j, i, j+1)
             return root
         else:
             return None
@@ -140,10 +147,11 @@ class Operators():
     def go_right(root: Node):
         i, j = is_possible(root.problem, 0)
         if j != 0:
-            root.problem[i][j], root.problem[i][j-1] = root.problem[i][j-1], root.problem[i][j]
+            Operators.swap_elements(root.problem, i, j, i, j-1)
             return root
         else:
             return None
+
 
 
 # checks if a given value is present in a 2D problem array and 
@@ -178,6 +186,7 @@ def menu():
                     '7':[[7,1,2],[4,8,5],[6,3,0]],
                     '8':[[0,7,2],[4,6,1],[3,5,8]]
                 }
+    
     option = int(input("Choose an option:\n1. Use Default Puzzle\n2. Enter your own 8-tile Puzzle\nEnter the option: "))
     if option == 1:
         sl_no = input('Enter any puzzle number between 1 and 8 (1 easiest and 8 hardest): ')
@@ -215,7 +224,7 @@ def menu():
         start = time.time()
         answer = generic_search(root, method)
         end = time.time()
-        print('Solved with a depth of ', str(answer.depth))
+        print('Solved with a depth of', str(answer.depth))
         print('Algorithm took', str(round((end - start), 3)), 'seconds to complete')
     else:
         print("\n***Oops!! Invalid algorithm chosen!!***\n")
