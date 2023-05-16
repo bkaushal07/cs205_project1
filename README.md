@@ -1,4 +1,4 @@
-# cs205_project1
+# CS205 Project1
 Eight tile puzzle using Uniform Cost, A* with Misplaced tile, and A* with Manhattan Distance
 
 Please execute the eight_tile_puzzle.py
